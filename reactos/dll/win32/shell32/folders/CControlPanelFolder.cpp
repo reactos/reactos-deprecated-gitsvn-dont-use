@@ -49,8 +49,8 @@ class CControlPanelEnum :
 */
 
 static const shvheader ControlPanelSFHeader[] = {
-    {IDS_SHV_COLUMN8, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 20},/*FIXME*/
-    {IDS_SHV_COLUMN9, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 80},/*FIXME*/
+    {IDS_SHV_COLUMN_NAME, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 20},/*FIXME*/
+    {IDS_SHV_COLUMN_COMMENTS, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 80},/*FIXME*/
 };
 
 #define CONROLPANELSHELLVIEWCOLUMNS 2
@@ -394,7 +394,8 @@ HRESULT WINAPI CControlPanelFolder::CreateViewObject(HWND hwndOwner, REFIID riid
             WARN("IContextMenu not implemented\n");
             hr = E_NOTIMPL;
         } else if (IsEqualIID(riid, IID_IShellView)) {
-            hr = CDefView_Constructor(this, riid, ppvOut);
+            SFV_CREATE sfvparams = {sizeof(SFV_CREATE), this};
+            hr = SHCreateShellFolderView(&sfvparams, (IShellView**)ppvOut);
         }
     }
     TRACE("--(%p)->(interface=%p)\n", this, ppvOut);

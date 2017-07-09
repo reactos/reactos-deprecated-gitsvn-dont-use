@@ -80,14 +80,15 @@ CFSFolder::~CFSFolder()
 
 
 static const shvheader GenericSFHeader[] = {
-    {IDS_SHV_COLUMN1, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 15},
-    {IDS_SHV_COLUMN2, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_RIGHT, 10},
-    {IDS_SHV_COLUMN3, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 10},
-    {IDS_SHV_COLUMN4, SHCOLSTATE_TYPE_DATE | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 12},
-    {IDS_SHV_COLUMN5, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 10}
+    {IDS_SHV_COLUMN_NAME, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 15},
+    {IDS_SHV_COLUMN_COMMENTS, SHCOLSTATE_TYPE_STR, LVCFMT_LEFT, 0},
+    {IDS_SHV_COLUMN_TYPE, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 10},
+    {IDS_SHV_COLUMN_SIZE, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_RIGHT, 10},
+    {IDS_SHV_COLUMN_MODIFIED, SHCOLSTATE_TYPE_DATE | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 12},
+    {IDS_SHV_COLUMN_ATTRIBUTES, SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT, LVCFMT_LEFT, 10}
 };
 
-#define GENERICSHELLVIEWCOLUMNS 5
+#define GENERICSHELLVIEWCOLUMNS 6
 
 /**************************************************************************
  *  SHELL32_CreatePidlFromBindCtx  [internal]
@@ -127,6 +128,110 @@ LPITEMIDLIST SHELL32_CreatePidlFromBindCtx(IBindCtx *pbc, LPCWSTR path)
     }
 
     return pidl;
+}
+
+void SHELL32_GetCLSIDForDirectory(LPCWSTR pwszDir, CLSID* pclsidFolder)
+{
+    WCHAR wszCLSIDValue[CHARS_IN_GUID];
+    WCHAR wszDesktopIni[MAX_PATH];
+    StringCchCopyW(wszDesktopIni, MAX_PATH, pwszDir);
+    StringCchCatW(wszDesktopIni, MAX_PATH, L"\\desktop.ini");
+
+    if (GetPrivateProfileStringW(L".ShellClassInfo", 
+                                 L"CLSID", 
+                                 L"",
+                                 wszCLSIDValue, 
+                                 CHARS_IN_GUID, 
+                                 wszDesktopIni))
+    {
+        CLSIDFromString (wszCLSIDValue, pclsidFolder);
+    }
+}
+
+
+static const DWORD dwSupportedAttr=
+                      SFGAO_CANCOPY |           /*0x00000001 */
+                      SFGAO_CANMOVE |           /*0x00000002 */
+                      SFGAO_CANLINK |           /*0x00000004 */
+                      SFGAO_CANRENAME |         /*0x00000010 */
+                      SFGAO_CANDELETE |         /*0x00000020 */
+                      SFGAO_HASPROPSHEET |      /*0x00000040 */
+                      SFGAO_DROPTARGET |        /*0x00000100 */
+                      SFGAO_LINK |              /*0x00010000 */
+                      SFGAO_READONLY |          /*0x00040000 */
+                      SFGAO_HIDDEN |            /*0x00080000 */
+                      SFGAO_FILESYSANCESTOR |   /*0x10000000 */
+                      SFGAO_FOLDER |            /*0x20000000 */
+                      SFGAO_FILESYSTEM |        /*0x40000000 */
+                      SFGAO_HASSUBFOLDER;       /*0x80000000 */
+
+HRESULT SHELL32_GetFSItemAttributes(IShellFolder * psf, LPCITEMIDLIST pidl, LPDWORD pdwAttributes)
+{
+    DWORD dwFileAttributes, dwShellAttributes;
+
+    if (!_ILIsFolder(pidl) && !_ILIsValue(pidl))
+    {
+        ERR("Got wrong type of pidl!\n");
+        *pdwAttributes &= SFGAO_CANLINK;
+        return S_OK;
+    }
+
+    if (*pdwAttributes & ~dwSupportedAttr)
+    {
+        WARN ("attributes 0x%08x not implemented\n", (*pdwAttributes & ~dwSupportedAttr));
+        *pdwAttributes &= dwSupportedAttr;
+    }
+
+    dwFileAttributes = _ILGetFileAttributes(pidl, NULL, 0);
+
+    /* Set common attributes */
+    dwShellAttributes = *pdwAttributes;
+    dwShellAttributes |= SFGAO_FILESYSTEM | SFGAO_DROPTARGET | SFGAO_HASPROPSHEET | SFGAO_CANDELETE |
+                         SFGAO_CANRENAME | SFGAO_CANLINK | SFGAO_CANMOVE | SFGAO_CANCOPY;
+
+    if (dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        dwShellAttributes |=  (SFGAO_FOLDER | SFGAO_HASSUBFOLDER | SFGAO_FILESYSANCESTOR);
+    }
+    else
+        dwShellAttributes &= ~(SFGAO_FOLDER | SFGAO_HASSUBFOLDER | SFGAO_FILESYSANCESTOR);
+
+    if (dwFileAttributes & FILE_ATTRIBUTE_HIDDEN)
+        dwShellAttributes |=  SFGAO_HIDDEN;
+    else
+        dwShellAttributes &= ~SFGAO_HIDDEN;
+
+    if (dwFileAttributes & FILE_ATTRIBUTE_READONLY)
+        dwShellAttributes |=  SFGAO_READONLY;
+    else
+        dwShellAttributes &= ~SFGAO_READONLY;
+
+    if (SFGAO_LINK & *pdwAttributes)
+    {
+        char ext[MAX_PATH];
+
+        if (!_ILGetExtension(pidl, ext, MAX_PATH) || lstrcmpiA(ext, "lnk"))
+        dwShellAttributes &= ~SFGAO_LINK;
+    }
+
+    if (SFGAO_HASSUBFOLDER & *pdwAttributes)
+    {
+        CComPtr<IShellFolder> psf2;
+        if (SUCCEEDED(psf->BindToObject(pidl, 0, IID_PPV_ARG(IShellFolder, &psf2))))
+        {
+            CComPtr<IEnumIDList> pEnumIL;
+            if (SUCCEEDED(psf2->EnumObjects(0, SHCONTF_FOLDERS, &pEnumIL)))
+            {
+                if (pEnumIL->Skip(1) != S_OK)
+                    dwShellAttributes &= ~SFGAO_HASSUBFOLDER;
+            }
+        }
+    }
+
+    *pdwAttributes &= dwShellAttributes;
+
+    TRACE ("-- 0x%08x\n", *pdwAttributes);
+    return S_OK;
 }
 
 /**************************************************************************
@@ -273,7 +378,48 @@ HRESULT WINAPI CFSFolder::BindToObject(
     TRACE("(%p)->(pidl=%p,%p,%s,%p)\n", this, pidl, pbc,
           shdebugstr_guid(&riid), ppvOut);
 
-    return SHELL32_BindToFS(pidlRoot, sPathTarget, pidl, riid, ppvOut);
+    CComPtr<IShellFolder> pSF;
+    HRESULT hr;
+
+    if (!pidlRoot || !ppvOut || !pidl || !pidl->mkid.cb)
+        return E_INVALIDARG;
+
+    if (_ILIsValue(pidl))
+    {
+        ERR("Binding to file is unimplemented\n");
+        return HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+    }
+    if (!_ILIsFolder(pidl))
+    {
+        ERR("Got an unknown type of pidl!\n");
+        return E_FAIL;
+    }
+
+    *ppvOut = NULL;
+
+    /* Get the pidl data */
+    FileStruct* pData = &_ILGetDataPointer(pidl)->u.file;
+    FileStructW* pDataW = _ILGetFileStructW(pidl);
+
+    /* Create the target folder info */
+    PERSIST_FOLDER_TARGET_INFO pfti = {0};
+    pfti.dwAttributes = -1;
+    pfti.csidl = -1;
+    PathCombineW(pfti.szTargetParsingName, sPathTarget, pDataW->wszName);
+
+    /* Get the CLSID to bind to */
+    CLSID clsidFolder = CLSID_ShellFSFolder;
+    if ((pData->uFileAttribs & (FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_READONLY)) != 0)
+        SHELL32_GetCLSIDForDirectory(pfti.szTargetParsingName, &clsidFolder);
+
+    hr = SHELL32_BindToSF(pidlRoot, &pfti, pidl, &clsidFolder, riid, ppvOut);
+    if (FAILED_UNEXPECTEDLY(hr))
+        return hr;
+
+    TRACE ("-- returning (%p) %08x\n", *ppvOut, hr);
+
+    return S_OK;
+
 }
 
 /**************************************************************************
@@ -328,20 +474,23 @@ HRESULT WINAPI CFSFolder::CompareIDs(LPARAM lParam,
         case 0: /* Name */
             result = wcsicmp(pDataW1->wszName, pDataW2->wszName);
             break;
+        case 1: /* Comments */
+            result = 0;
+            break;
         case 2: /* Type */
             pExtension1 = PathFindExtensionW(pDataW1->wszName);
             pExtension2 = PathFindExtensionW(pDataW2->wszName);
             result = wcsicmp(pExtension1, pExtension2); 
             break;
-        case 1: /* Size */
+        case 3: /* Size */
             result = pData1->u.file.dwFileSize - pData2->u.file.dwFileSize;
             break;
-        case 3: /* Modified */
+        case 4: /* Modified */
             result = pData1->u.file.uFileDate - pData2->u.file.uFileDate;
             if (result == 0)
                 result = pData1->u.file.uFileTime - pData2->u.file.uFileTime;
             break;
-        case 4: /* Attributes */
+        case 5: /* Attributes */
             return SHELL32_CompareDetails(this, lParam, pidl1, pidl2);
     }
 
@@ -389,7 +538,8 @@ HRESULT WINAPI CFSFolder::CreateViewObject(HWND hwndOwner,
         }
         else if (IsEqualIID (riid, IID_IShellView))
         {
-            hr = CDefView_Constructor(this, riid, ppvOut);
+            SFV_CREATE sfvparams = {sizeof(SFV_CREATE), this};
+            hr = SHCreateShellFolderView(&sfvparams, (IShellView**)ppvOut);
         }
     }
     TRACE("-- (%p)->(interface=%p)\n", this, ppvOut);
@@ -634,7 +784,7 @@ void SHELL_FS_ProcessDisplayFilename(LPWSTR szPath, DWORD dwFlags)
 HRESULT WINAPI CFSFolder::GetDisplayNameOf(PCUITEMID_CHILD pidl,
         DWORD dwFlags, LPSTRRET strRet)
 {
-    if (!pidl || !strRet)
+    if (!strRet)
         return E_INVALIDARG;
 
     /* If it is a complex pidl, let the child handle it */
@@ -642,7 +792,7 @@ HRESULT WINAPI CFSFolder::GetDisplayNameOf(PCUITEMID_CHILD pidl,
     {
         return SHELL32_GetDisplayNameOfChild(this, pidl, dwFlags, strRet);
     }
-    else if (!pidl->mkid.cb) /* empty pidl */
+    else if (pidl && !pidl->mkid.cb) /* empty pidl */
     {
         /* If it is an empty pidl return only the path of the folder */
         if ((GET_SHGDN_FOR(dwFlags) & SHGDN_FORPARSING) && 
@@ -825,19 +975,21 @@ HRESULT WINAPI CFSFolder::GetDetailsOf(PCUITEMID_CHILD pidl,
         switch (iColumn)
         {
             case 0:                /* name */
-                hr = GetDisplayNameOf (pidl,
-                    SHGDN_NORMAL | SHGDN_INFOLDER, &psd->str);
+                hr = GetDisplayNameOf (pidl, SHGDN_NORMAL | SHGDN_INFOLDER, &psd->str);
                 break;
-            case 1:                /* size */
-                _ILGetFileSize(pidl, psd->str.cStr, MAX_PATH);
+            case 1:                /* FIXME: comments */
+                psd->str.cStr[0] = 0;
                 break;
             case 2:                /* type */
                 _ILGetFileType(pidl, psd->str.cStr, MAX_PATH);
                 break;
-            case 3:                /* date */
+            case 3:                /* size */
+                _ILGetFileSize(pidl, psd->str.cStr, MAX_PATH);
+                break;
+            case 4:                /* date */
                 _ILGetFileDate(pidl, psd->str.cStr, MAX_PATH);
                 break;
-            case 4:                /* attributes */
+            case 5:                /* attributes */
                 _ILGetFileAttributes(pidl, psd->str.cStr, MAX_PATH);
                 break;
         }

@@ -30,37 +30,151 @@
 #define GPLK_USER                   1
 #define GPLK_MACHINE                2
 
+typedef struct _ShimData
+{
+    WCHAR szModule[MAX_PATH];
+    DWORD dwSize;
+    DWORD dwMagic;
+    SDBQUERYRESULT Query;
+    WCHAR szLayer[MAX_LAYER_LENGTH];
+    DWORD unknown;  // 0x14c
+} ShimData;
+
+#define SHIMDATA_MAGIC  0xAC0DEDAB
+
+
 static BOOL WINAPI SdbpFileExists(LPCWSTR path)
 {
     DWORD attr = GetFileAttributesW(path);
     return (attr != INVALID_FILE_ATTRIBUTES && !(attr & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-static BOOL WINAPI SdbpMatchExe(PDB db, TAGID exe, WCHAR* dir)
+static BOOL SdbpMatchFileAttributes(PDB pdb, TAGID matching_file, PATTRINFO attribs, DWORD attr_count)
 {
-    static const WCHAR fmt[] = {'%','s','%','s',0};
-    WCHAR buffer[256];  /* FIXME: rewrite using a buffer that can grow if needed, f.e. RtlInitBuffer stuff! */
-    TAGID matching_file;
+    TAGID child;
 
-    /* TODO: check size/checksum from the main exe as well as from the extra files */
-    for (matching_file = SdbFindFirstTag(db, exe, TAG_MATCHING_FILE);
-            matching_file != TAGID_NULL; matching_file = SdbFindNextTag(db, exe, matching_file))
+    for (child = SdbGetFirstChild(pdb, matching_file);
+         child != TAGID_NULL; child = SdbGetNextChild(pdb, matching_file, child))
     {
-        TAGID tagName = SdbFindFirstTag(db, matching_file, TAG_NAME);
-        LPWSTR name = SdbGetStringTagPtr(db, tagName);
+        TAG tag = SdbGetTagFromTagID(pdb, child);
+        DWORD n;
 
-        if (!wcscmp(name, L"*"))
+        /* Already handled! */
+        if (tag == TAG_NAME)
+            continue;
+
+        if (tag == TAG_UPTO_BIN_FILE_VERSION ||
+            tag == TAG_UPTO_BIN_PRODUCT_VERSION ||
+            tag == TAG_UPTO_LINK_DATE)
         {
-            // if attributes dont match main file, return FALSE!
+            SHIM_WARN("Unimplemented TAG_UPTO_XXXXX\n");
             continue;
         }
 
-        snprintfW(buffer, _countof(buffer), fmt, dir, name);
-        if (!SdbpFileExists(buffer))
-            return FALSE;
+        for (n = 0; n < attr_count; ++n)
+        {
+            PATTRINFO attr = attribs + n;
+            if (attr->flags == ATTRIBUTE_AVAILABLE && attr->type == tag)
+            {
+                DWORD dwval;
+                WCHAR* lpval;
+                QWORD qwval;
+                switch (tag & TAG_TYPE_MASK)
+                {
+                case TAG_TYPE_DWORD:
+                    dwval = SdbReadDWORDTag(pdb, child, 0);
+                    if (dwval != attr->dwattr)
+                        return FALSE;
+                    break;
+                case TAG_TYPE_STRINGREF:
+                    lpval = SdbGetStringTagPtr(pdb, child);
+                    if (!lpval || wcsicmp(attr->lpattr, lpval))
+                        return FALSE;
+                    break;
+                case TAG_TYPE_QWORD:
+                    qwval = SdbReadQWORDTag(pdb, child, 0);
+                    if (qwval != attr->qwattr)
+                        return FALSE;
+                    break;
+                default:
+                    SHIM_WARN("Unhandled type 0x%x MATCHING_FILE\n", (tag & TAG_TYPE_MASK));
+                    return FALSE;
+                }
+            }
+        }
+        if (n == attr_count)
+            SHIM_WARN("Unhandled tag %ws in MACHING_FILE\n", SdbTagToString(tag));
+    }
+    return TRUE;
+}
+
+static BOOL WINAPI SdbpMatchExe(PDB pdb, TAGID exe, const WCHAR* dir, PATTRINFO main_attribs, DWORD main_attr_count)
+{
+    RTL_UNICODE_STRING_BUFFER FullPathName = { { 0 } };
+    WCHAR FullPathBuffer[MAX_PATH];
+    UNICODE_STRING UnicodeDir;
+    TAGID matching_file;
+    PATTRINFO attribs = NULL;
+    DWORD attr_count;
+    BOOL IsMatch = FALSE;
+
+    RtlInitUnicodeString(&UnicodeDir, dir);
+    RtlInitBuffer(&FullPathName.ByteBuffer, (PUCHAR)FullPathBuffer, sizeof(FullPathBuffer));
+
+    for (matching_file = SdbFindFirstTag(pdb, exe, TAG_MATCHING_FILE);
+            matching_file != TAGID_NULL; matching_file = SdbFindNextTag(pdb, exe, matching_file))
+    {
+        TAGID tagName = SdbFindFirstTag(pdb, matching_file, TAG_NAME);
+        UNICODE_STRING Name;
+        USHORT Len;
+
+        RtlInitUnicodeString(&Name, SdbGetStringTagPtr(pdb, tagName));
+
+        if (!Name.Buffer)
+            goto Cleanup;
+
+        if (!wcscmp(Name.Buffer, L"*"))
+        {
+            if (!SdbpMatchFileAttributes(pdb, matching_file, main_attribs, main_attr_count))
+                goto Cleanup;
+            continue;
+        }
+
+        /* Technically, one UNICODE_NULL and one path separator. */
+        Len = UnicodeDir.Length + Name.Length + sizeof(UNICODE_NULL) + sizeof(UNICODE_NULL);
+        if (!NT_SUCCESS(RtlEnsureBufferSize(RTL_SKIP_BUFFER_COPY, &FullPathName.ByteBuffer, Len)))
+            goto Cleanup;
+
+        if (Len > FullPathName.ByteBuffer.Size)
+            goto Cleanup;
+
+        RtlInitEmptyUnicodeString(&FullPathName.String, (PWCHAR)FullPathName.ByteBuffer.Buffer, FullPathName.ByteBuffer.Size);
+
+        RtlCopyUnicodeString(&FullPathName.String, &UnicodeDir);
+        RtlAppendUnicodeToString(&FullPathName.String, L"\\");
+        RtlAppendUnicodeStringToString(&FullPathName.String, &Name);
+
+        if (!SdbpFileExists(FullPathName.String.Buffer))
+            goto Cleanup;
+
+        if (attribs)
+            SdbFreeFileAttributes(attribs);
+
+        if (!SdbGetFileAttributes(FullPathName.String.Buffer, &attribs, &attr_count))
+            goto Cleanup;
+
+        if (!SdbpMatchFileAttributes(pdb, matching_file, attribs, attr_count))
+            goto Cleanup;
     }
 
-    return TRUE;
+    IsMatch = TRUE;
+
+Cleanup:
+    RtlFreeBuffer(&FullPathName.ByteBuffer);
+    if (attribs)
+        SdbFreeFileAttributes(attribs);
+
+    return IsMatch;
 }
 
 static void SdbpAddDatabaseGuid(PDB db, PSDBQUERYRESULT result)
@@ -318,7 +432,7 @@ BOOL WINAPI SdbGetMatchingExe(HSDB hsdb, LPCWSTR path, LPCWSTR module_name,
     BOOL ret = FALSE;
     TAGID database, iter, name;
     PATTRINFO attribs = NULL;
-    /*DWORD attr_count;*/
+    DWORD attr_count;
     RTL_UNICODE_STRING_BUFFER DosApplicationName = { { 0 } };
     WCHAR DosPathBuffer[MAX_PATH];
     ULONG PathType = 0;
@@ -377,10 +491,6 @@ BOOL WINAPI SdbGetMatchingExe(HSDB hsdb, LPCWSTR path, LPCWSTR module_name,
     /* We will use the buffer for exe name and directory. */
     *(file_name++) = UNICODE_NULL;
 
-    /* Get information about executable required to match it with database entry */
-    /*if (!SdbGetFileAttributes(path, &attribs, &attr_count))
-        return FALSE;*/
-
     /* DATABASE is list TAG which contains all executables */
     database = SdbFindFirstTag(db, TAGID_ROOT, TAG_DATABASE);
     if (database == TAGID_NULL)
@@ -401,8 +511,16 @@ BOOL WINAPI SdbGetMatchingExe(HSDB hsdb, LPCWSTR path, LPCWSTR module_name,
         foundName = SdbGetStringTagPtr(db, name);
         if (foundName && !lstrcmpiW(foundName, file_name))
         {
+            /* Get information about executable required to match it with database entry */
+            if (!attribs)
+            {
+                if (!SdbGetFileAttributes(path, &attribs, &attr_count))
+                    goto Cleanup;
+            }
+
+
             /* We have a null terminator before the application name, so DosApplicationName only contains the path. */
-            if (SdbpMatchExe(db, iter, DosApplicationName.String.Buffer))
+            if (SdbpMatchExe(db, iter, DosApplicationName.String.Buffer, attribs, attr_count))
             {
                 ret = TRUE;
                 SdbpAddExeMatch(hsdb, db, iter, result);
@@ -553,4 +671,80 @@ BOOL WINAPI SdbTagIDToTagRef(HSDB hsdb, PDB pdb, TAGID tiWhich, TAGREF* ptrWhich
 }
 
 
+
+BOOL WINAPI SdbPackAppCompatData(HSDB hsdb, PSDBQUERYRESULT pQueryResult, PVOID* ppData, DWORD *pdwSize)
+{
+    ShimData* pData;
+    HRESULT hr;
+    DWORD n;
+
+    if (!pQueryResult || !ppData || !pdwSize)
+    {
+        SHIM_WARN("Invalid params: %p, %p, %p\n", pQueryResult, ppData, pdwSize);
+        return FALSE;
+    }
+
+    pData = RtlAllocateHeap(RtlGetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(ShimData));
+    if (!pData)
+    {
+        SHIM_WARN("Unable to allocate %d bytes\n", sizeof(ShimData));
+        return FALSE;
+    }
+
+    GetWindowsDirectoryW(pData->szModule, _countof(pData->szModule));
+    hr = StringCchCatW(pData->szModule, _countof(pData->szModule), L"\\system32\\apphelp.dll");
+    if (!SUCCEEDED(hr))
+    {
+        SHIM_ERR("Unable to append module name (0x%x)\n", hr);
+        RtlFreeHeap(RtlGetProcessHeap(), 0, pData);
+        return FALSE;
+    }
+
+    pData->dwSize = sizeof(*pData);
+    pData->dwMagic = SHIMDATA_MAGIC;
+    pData->Query = *pQueryResult;
+    pData->unknown = 0;
+    pData->szLayer[0] = UNICODE_NULL;   /* TODO */
+
+    SHIM_INFO("\ndwFlags    0x%x\ndwMagic    0x%x\ntrExe      0x%x\ntrLayer    0x%x",
+              pData->Query.dwFlags, pData->dwMagic, pData->Query.atrExes[0], pData->Query.atrLayers[0]);
+
+    /* Database List */
+    /* 0x0 {GUID} NAME */
+
+    for (n = 0; n < pQueryResult->dwLayerCount; ++n)
+    {
+        SHIM_INFO("Layer 0x%x\n", pQueryResult->atrLayers[n]);
+    }
+
+    *ppData = pData;
+    *pdwSize = pData->dwSize;
+
+    return TRUE;
+}
+
+BOOL WINAPI SdbUnpackAppCompatData(HSDB hsdb, LPCWSTR pszImageName, PVOID pData, PSDBQUERYRESULT pQueryResult)
+{
+    ShimData* pShimData = pData;
+
+    if (!pShimData || pShimData->dwMagic != SHIMDATA_MAGIC || pShimData->dwSize < sizeof(ShimData))
+        return FALSE;
+
+    if (!pQueryResult)
+        return FALSE;
+
+    /* szLayer? */
+
+    *pQueryResult = pShimData->Query;
+    return TRUE;
+}
+
+DWORD WINAPI SdbGetAppCompatDataSize(ShimData* pData)
+{
+    if (!pData || pData->dwMagic != SHIMDATA_MAGIC)
+        return 0;
+
+
+    return pData->dwSize;
+}
 

@@ -52,8 +52,6 @@ static const WORD gusEnglishUS = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US);
 
 /* special font names */
 static const UNICODE_STRING MarlettW = RTL_CONSTANT_STRING(L"Marlett");
-static const UNICODE_STRING SystemW = RTL_CONSTANT_STRING(L"System");
-static const UNICODE_STRING FixedSysW = RTL_CONSTANT_STRING(L"FixedSys");
 
 /* registry */
 static UNICODE_STRING FontRegPath =
@@ -599,7 +597,7 @@ SubstituteFontRecurse(LOGFONTW* pLogFont)
         if (!Found)
             break;
 
-        RtlStringCbCopyW(pLogFont->lfFaceName, LF_FACESIZE, OutputNameW.Buffer);
+        RtlStringCchCopyW(pLogFont->lfFaceName, LF_FACESIZE, OutputNameW.Buffer);
 
         if (CharSetMap[FONTSUBST_FROM] == DEFAULT_CHARSET ||
             CharSetMap[FONTSUBST_FROM] == pLogFont->lfCharSet)
@@ -2503,114 +2501,48 @@ GetFontFamilyInfoForList(LPLOGFONTW LogFont,
     return TRUE;
 }
 
-typedef struct FontFamilyInfoCallbackContext
-{
-    LPLOGFONTW LogFont;
-    PFONTFAMILYINFO Info;
-    DWORD Count;
-    DWORD Size;
-} FONT_FAMILY_INFO_CALLBACK_CONTEXT, *PFONT_FAMILY_INFO_CALLBACK_CONTEXT;
-
-_Function_class_(RTL_QUERY_REGISTRY_ROUTINE)
-static NTSTATUS APIENTRY
-FontFamilyInfoQueryRegistryCallback(IN PWSTR ValueName, IN ULONG ValueType,
-                                    IN PVOID ValueData, IN ULONG ValueLength,
-                                    IN PVOID Context, IN PVOID EntryContext)
-{
-    PFONT_FAMILY_INFO_CALLBACK_CONTEXT InfoContext;
-    UNICODE_STRING RegistryName, RegistryValue;
-    int Existing;
-    PFONTGDI FontGDI;
-
-    if (REG_SZ != ValueType)
-    {
-        return STATUS_SUCCESS;
-    }
-    InfoContext = (PFONT_FAMILY_INFO_CALLBACK_CONTEXT) Context;
-    RtlInitUnicodeString(&RegistryName, ValueName);
-
-    /* Do we need to include this font family? */
-    if (FontFamilyInclude(InfoContext->LogFont, &RegistryName, InfoContext->Info,
-                          min(InfoContext->Count, InfoContext->Size)))
-    {
-        RtlInitUnicodeString(&RegistryValue, (PCWSTR) ValueData);
-        Existing = FindFaceNameInInfo(&RegistryValue, InfoContext->Info,
-                                      min(InfoContext->Count, InfoContext->Size));
-        if (0 <= Existing)
-        {
-            /* We already have the information about the "real" font. Just copy it */
-            if (InfoContext->Count < InfoContext->Size)
-            {
-                InfoContext->Info[InfoContext->Count] = InfoContext->Info[Existing];
-                RtlStringCbCopyNW(InfoContext->Info[InfoContext->Count].EnumLogFontEx.elfLogFont.lfFaceName,
-                                  sizeof(InfoContext->Info[InfoContext->Count].EnumLogFontEx.elfLogFont.lfFaceName),
-                                  RegistryName.Buffer,
-                                  RegistryName.Length);
-            }
-            InfoContext->Count++;
-            return STATUS_SUCCESS;
-        }
-
-        /* Try to find information about the "real" font */
-        FontGDI = FindFaceNameInLists(&RegistryValue);
-        if (NULL == FontGDI)
-        {
-            /* "Real" font not found, discard this registry entry */
-            return STATUS_SUCCESS;
-        }
-
-        /* Return info about the "real" font but with the name of the alias */
-        if (InfoContext->Count < InfoContext->Size)
-        {
-            FontFamilyFillInfo(InfoContext->Info + InfoContext->Count,
-                               RegistryName.Buffer, NULL, FontGDI);
-        }
-        InfoContext->Count++;
-        return STATUS_SUCCESS;
-    }
-
-    return STATUS_SUCCESS;
-}
-
 static BOOLEAN FASTCALL
 GetFontFamilyInfoForSubstitutes(LPLOGFONTW LogFont,
                                 PFONTFAMILYINFO Info,
-                                DWORD *Count,
-                                DWORD Size)
+                                DWORD *pCount,
+                                DWORD MaxCount)
 {
-    RTL_QUERY_REGISTRY_TABLE QueryTable[2] = {{0}};
-    FONT_FAMILY_INFO_CALLBACK_CONTEXT Context;
-    NTSTATUS Status;
+    PLIST_ENTRY pEntry, pHead = &FontSubstListHead;
+    PFONTSUBST_ENTRY pCurrentEntry;
+    PUNICODE_STRING pFromW;
+    FONTGDI *FontGDI;
+    LOGFONTW lf = *LogFont;
+    UNICODE_STRING NameW;
 
-    /* Enumerate font families found in HKLM\Software\Microsoft\Windows NT\CurrentVersion\FontSubstitutes
-       The real work is done in the registry callback function */
-    Context.LogFont = LogFont;
-    Context.Info = Info;
-    Context.Count = *Count;
-    Context.Size = Size;
-
-    QueryTable[0].QueryRoutine = FontFamilyInfoQueryRegistryCallback;
-    QueryTable[0].Flags = 0;
-    QueryTable[0].Name = NULL;
-    QueryTable[0].EntryContext = NULL;
-    QueryTable[0].DefaultType = REG_NONE;
-    QueryTable[0].DefaultData = NULL;
-    QueryTable[0].DefaultLength = 0;
-
-    QueryTable[1].QueryRoutine = NULL;
-    QueryTable[1].Name = NULL;
-
-    Status = RtlQueryRegistryValues(RTL_REGISTRY_WINDOWS_NT,
-                                    L"FontSubstitutes",
-                                    QueryTable,
-                                    &Context,
-                                    NULL);
-    if (NT_SUCCESS(Status))
+    for (pEntry = pHead->Flink; pEntry != pHead; pEntry = pEntry->Flink)
     {
-        *Count = Context.Count;
+        pCurrentEntry = CONTAINING_RECORD(pEntry, FONTSUBST_ENTRY, ListEntry);
+
+        pFromW = &pCurrentEntry->FontNames[FONTSUBST_FROM];
+        if (LogFont->lfFaceName[0] != UNICODE_NULL)
+        {
+            if (!FontFamilyInclude(LogFont, pFromW, Info, min(*pCount, MaxCount)))
+                continue;   /* mismatch */
+        }
+
+        RtlStringCchCopyW(lf.lfFaceName, LF_FACESIZE, pFromW->Buffer);
+        SubstituteFontRecurse(&lf);
+
+        RtlInitUnicodeString(&NameW, lf.lfFaceName);
+        FontGDI = FindFaceNameInLists(&NameW);
+        if (FontGDI == NULL)
+        {
+            continue;   /* no real font */
+        }
+
+        if (*pCount < MaxCount)
+        {
+            FontFamilyFillInfo(&Info[*pCount], pFromW->Buffer, NULL, FontGDI);
+        }
+        (*pCount)++;
     }
 
-    return NT_SUCCESS(Status) || STATUS_OBJECT_NAME_NOT_FOUND == Status;
+    return TRUE;
 }
 
 BOOL
@@ -4045,7 +3977,7 @@ GetFontPenalty(const LOGFONTW *               LogFont,
     ULONG   Penalty = 0;
     BYTE    Byte;
     LONG    Long;
-    BOOL    fFixedSys = FALSE, fNeedScaling = FALSE;
+    BOOL    fNeedScaling = FALSE;
     const BYTE UserCharSet = CharSetFromLangID(gusLanguageID);
     const TEXTMETRICW * TM = &Otm->otmTextMetrics;
     WCHAR* ActualNameW;
@@ -4059,62 +3991,38 @@ GetFontPenalty(const LOGFONTW *               LogFont,
     /* FIXME: SmallPenalty Penalty 1 */
     /* FIXME: FaceNameSubst Penalty 500 */
 
-    if (_wcsicmp(LogFont->lfFaceName, L"System") == 0)
+    Byte = LogFont->lfCharSet;
+    if (Byte == DEFAULT_CHARSET)
     {
-        /* "System" font */
-        if (TM->tmCharSet != UserCharSet)
+        if (_wcsicmp(LogFont->lfFaceName, L"Marlett") == 0)
         {
-            /* CharSet Penalty 65000 */
-            /* Requested charset does not match the candidate's. */
-            Penalty += 65000;
-        }
-    }
-    else if (_wcsicmp(LogFont->lfFaceName, L"FixedSys") == 0)
-    {
-        /* "FixedSys" font */
-        if (TM->tmCharSet != UserCharSet)
-        {
-            /* CharSet Penalty 65000 */
-            /* Requested charset does not match the candidate's. */
-            Penalty += 65000;
-        }
-        fFixedSys = TRUE;
-    }
-    else    /* Request is non-"System" font */
-    {
-        Byte = LogFont->lfCharSet;
-        if (Byte == DEFAULT_CHARSET)
-        {
-            if (_wcsicmp(LogFont->lfFaceName, L"Marlett") == 0)
+            if (Byte == ANSI_CHARSET)
             {
-                if (Byte == ANSI_CHARSET)
-                {
-                    DPRINT("Warning: FIXME: It's Marlett but ANSI_CHARSET.\n");
-                }
-                /* We assume SYMBOL_CHARSET for "Marlett" font */
-                Byte = SYMBOL_CHARSET;
+                DPRINT("Warning: FIXME: It's Marlett but ANSI_CHARSET.\n");
             }
+            /* We assume SYMBOL_CHARSET for "Marlett" font */
+            Byte = SYMBOL_CHARSET;
         }
+    }
 
-        if (Byte != TM->tmCharSet)
+    if (Byte != TM->tmCharSet)
+    {
+        if (Byte != DEFAULT_CHARSET && Byte != ANSI_CHARSET)
         {
-            if (Byte != DEFAULT_CHARSET && Byte != ANSI_CHARSET)
+            /* CharSet Penalty 65000 */
+            /* Requested charset does not match the candidate's. */
+            Penalty += 65000;
+        }
+        else
+        {
+            if (UserCharSet != TM->tmCharSet)
             {
-                /* CharSet Penalty 65000 */
-                /* Requested charset does not match the candidate's. */
-                Penalty += 65000;
-            }
-            else
-            {
-                if (UserCharSet != TM->tmCharSet)
+                /* UNDOCUMENTED */
+                Penalty += 100;
+                if (ANSI_CHARSET != TM->tmCharSet)
                 {
                     /* UNDOCUMENTED */
                     Penalty += 100;
-                    if (ANSI_CHARSET != TM->tmCharSet)
-                    {
-                        /* UNDOCUMENTED */
-                        Penalty += 100;
-                    }
                 }
             }
         }
@@ -4149,11 +4057,6 @@ GetFontPenalty(const LOGFONTW *               LogFont,
     Byte = (LogFont->lfPitchAndFamily & 0x0F);
     if (Byte == DEFAULT_PITCH)
         Byte = VARIABLE_PITCH;
-    if (fFixedSys)
-    {
-        /* "FixedSys" font should be fixed-pitch */
-        Byte = FIXED_PITCH;
-    }
     if (Byte == FIXED_PITCH)
     {
         if (TM->tmPitchAndFamily & _TMPF_VARIABLE_PITCH)
@@ -5182,12 +5085,6 @@ GreExtTextOutW(
         EngSetLastError(ERROR_INVALID_HANDLE);
         return FALSE;
     }
-    if (dc->dctype == DC_TYPE_INFO)
-    {
-        DC_UnlockDc(dc);
-        /* Yes, Windows really returns TRUE in this case */
-        return TRUE;
-    }
 
     pdcattr = dc->pdcattr;
 
@@ -5219,6 +5116,13 @@ GreExtTextOutW(
         goto good;
     }
 
+    if (!dc->dclevel.pSurface)
+    {
+        /* Memory DC with no surface selected */
+        DC_UnlockDc(dc);
+        return TRUE;
+    }
+
     if (lprc && (fuOptions & (ETO_OPAQUE | ETO_CLIPPED)))
     {
         IntLPtoDP(dc, (POINT *)lprc, 2);
@@ -5243,11 +5147,6 @@ GreExtTextOutW(
     MaskRect.top = 0;
     BrushOrigin.x = 0;
     BrushOrigin.y = 0;
-
-    if (!dc->dclevel.pSurface)
-    {
-        goto fail;
-    }
 
     if ((fuOptions & ETO_OPAQUE) && lprc)
     {

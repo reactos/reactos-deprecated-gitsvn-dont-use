@@ -428,6 +428,23 @@ RxRemoveFirstContextFromSerializationQueue(
        InitializeListHead((Source));                \
     }
 
+#define RxTransferListWithMutex(Destination, Source, Mutex) \
+    {                                                       \
+        ExAcquireFastMutex(Mutex);                          \
+        RxTransferList(Destination, Source);                \
+        ExReleaseFastMutex(Mutex);                          \
+    }
+
+NTSTATUS
+RxCancelNotifyChangeDirectoryRequestsForVNetRoot(
+   PV_NET_ROOT VNetRoot,
+   BOOLEAN ForceFilesClosed);
+
+VOID
+RxCancelNotifyChangeDirectoryRequestsForFobx(
+   PFOBX Fobx
+   );
+
 VOID
 NTAPI
 RxInitializeContext(
@@ -471,5 +488,9 @@ NTAPI
 RxResumeBlockedOperations_Serially(
     _Inout_ PRX_CONTEXT RxContext,
     _Inout_ PLIST_ENTRY BlockingIoQ);
+
+VOID
+RxResumeBlockedOperations_ALL(
+    _Inout_ PRX_CONTEXT RxContext);
 
 #endif

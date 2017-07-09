@@ -116,6 +116,9 @@ RxMapSystemBuffer(
 #define FCB_MODE_SHARED_WAIT_FOR_EXCLUSIVE 3
 #define FCB_MODE_SHARED_STARVE_EXCLUSIVE 4
 
+#define CHANGE_BUFFERING_STATE_CONTEXT ((PRX_CONTEXT)IntToPtr(0xffffffff))
+#define CHANGE_BUFFERING_STATE_CONTEXT_WAIT ((PRX_CONTEXT)IntToPtr(0xfffffffe))
+
 NTSTATUS
 __RxAcquireFcb(
     _Inout_ PFCB Fcb,
@@ -374,6 +377,18 @@ RxFindOrConstructVirtualNetRoot(
     _In_ PUNICODE_STRING RemainingName);
 #endif
 
+#if (_WIN32_WINNT >= 0x0600)
+NTSTATUS
+RxLowIoLockControlShell(
+    _In_ PRX_CONTEXT RxContext,
+    _In_ PIRP Irp,
+    _In_ PFCB Fcb);
+#else
+NTSTATUS
+RxLowIoLockControlShell(
+    _In_ PRX_CONTEXT RxContext);
+#endif
+
 NTSTATUS
 NTAPI
 RxChangeBufferingState(
@@ -469,6 +484,10 @@ VOID
 RxUpdateShareAccessPerSrvOpens(
     _In_ PSRV_OPEN SrvOpen);
 
+VOID
+RxRemoveShareAccessPerSrvOpens(
+    _Inout_ PSRV_OPEN SrvOpen);
+
 #if DBG
 NTSTATUS
 RxCheckShareAccess(
@@ -528,6 +547,37 @@ ULONG
 RxGetNetworkProviderPriority(
     _In_ PUNICODE_STRING DeviceName);
 
+VOID
+RxPrepareRequestForReuse(
+    PCHANGE_BUFFERING_STATE_REQUEST Request);
+
+VOID
+RxpDiscardChangeBufferingStateRequests(
+    _Inout_ PLIST_ENTRY DiscardedRequests);
+
+VOID
+RxGatherRequestsForSrvOpen(
+    _Inout_ PSRV_CALL SrvCall,
+    _In_ PSRV_OPEN SrvOpen,
+    _Inout_ PLIST_ENTRY RequestsListHead);
+
+NTSTATUS
+RxpLookupSrvOpenForRequestLite(
+    _In_ PSRV_CALL SrvCall,
+    _Inout_ PCHANGE_BUFFERING_STATE_REQUEST Request);
+
+VOID
+RxProcessChangeBufferingStateRequestsForSrvOpen(
+    PSRV_OPEN SrvOpen);
+
+NTSTATUS
+RxPurgeFobxFromCache(
+    PFOBX FobxToBePurged);
+
+VOID
+RxUndoScavengerFinalizationMarking(
+    PVOID Instance);
+
 ULONG
 RxTableComputePathHashValue(
     _In_ PUNICODE_STRING Name);
@@ -563,6 +613,11 @@ RxAddVirtualNetRootToNetRoot(
     _In_ PNET_ROOT NetRoot,
     _In_ PV_NET_ROOT VNetRoot);
 
+VOID
+RxRemoveVirtualNetRootFromNetRoot(
+    _In_ PNET_ROOT NetRoot,
+    _In_ PV_NET_ROOT VNetRoot);
+
 PVOID
 RxAllocateFcbObject(
     _In_ PRDBSS_DEVICE_OBJECT RxDeviceObject,
@@ -574,6 +629,10 @@ RxAllocateFcbObject(
 VOID
 RxFreeFcbObject(
     _In_ PVOID Object);
+
+VOID
+RxPurgeFcb(
+    _In_ PFCB Fcb);
 
 BOOLEAN
 RxFinalizeNetFcb(
@@ -642,8 +701,18 @@ RxTableLookupName(
     _In_opt_ PRX_CONNECTION_ID RxConnectionId);
 
 VOID
+RxOrphanSrvOpens(
+    _In_ PV_NET_ROOT ThisVNetRoot);
+
+VOID
 RxOrphanThisFcb(
     _In_ PFCB Fcb);
+
+VOID
+RxOrphanSrvOpensForThisFcb(
+    _In_ PFCB Fcb,
+    _In_ PV_NET_ROOT ThisVNetRoot,
+    _In_ BOOLEAN OrphanAll);
 
 #define RxEqualConnectionId(C1, C2) RtlEqualMemory(C1, C2, sizeof(RX_CONNECTION_ID))
 

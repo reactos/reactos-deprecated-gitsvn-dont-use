@@ -5,6 +5,7 @@ include_directories(include)
 # subdirectories containing special-purpose drivers
 #
 add_subdirectory(example)
+add_subdirectory(hidparse)
 add_subdirectory(kernel32)
 add_subdirectory(ntos_cc)
 add_subdirectory(ntos_io)
@@ -123,6 +124,8 @@ list(APPEND KMTEST_SOURCE
     kmtest/testlist.c
 
     example/Example_user.c
+    hidparse/HidP_user.c
+    kernel32/FileAttributes_user.c
     kernel32/FindFile_user.c
     ntos_cc/CcCopyRead_user.c
     ntos_io/IoCreateFile_user.c
@@ -153,11 +156,12 @@ add_custom_target(kmtest_drivers)
 add_dependencies(kmtest_drivers
     kmtest_drv
     example_drv
-    findfile_drv
+    hidp_drv
     iocreatefile_drv
     iodeviceobject_drv
     iohelper_drv
     ioreadwrite_drv
+    kernel32_drv
     mmmaplockedpagesspecifycache_drv
     ntcreatesection_drv
     poirp_drv

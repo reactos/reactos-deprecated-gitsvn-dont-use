@@ -40,26 +40,27 @@ extern BOOLEAN CmFirstTime;
 BOOLEAN
 NTAPI
 CmpLinkKeyToHive(
-    _In_z_ PWSTR LinkKeyName,
-    _In_z_ PWSTR TargetKeyName)
+    _In_z_ PCWSTR LinkKeyName,
+    _In_z_ PCWSTR TargetKeyName)
 {
-    OBJECT_ATTRIBUTES ObjectAttributes;
-    UNICODE_STRING LinkKeyName_U;
-    HANDLE TargetKeyHandle;
-    ULONG Disposition;
     NTSTATUS Status;
+    OBJECT_ATTRIBUTES ObjectAttributes;
+    UNICODE_STRING KeyName;
+    HANDLE LinkKeyHandle;
+    ULONG Disposition;
+
     PAGED_CODE();
 
     /* Initialize the object attributes */
-    RtlInitUnicodeString(&LinkKeyName_U, LinkKeyName);
+    RtlInitUnicodeString(&KeyName, LinkKeyName);
     InitializeObjectAttributes(&ObjectAttributes,
-                               &LinkKeyName_U,
+                               &KeyName,
                                OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
                                NULL,
                                NULL);
 
     /* Create the link key */
-    Status = ZwCreateKey(&TargetKeyHandle,
+    Status = ZwCreateKey(&LinkKeyHandle,
                          KEY_CREATE_LINK,
                          &ObjectAttributes,
                          0,
@@ -68,7 +69,7 @@ CmpLinkKeyToHive(
                          &Disposition);
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("CM: CmpLinkKeyToHive: couldn't create %S Status = 0x%lx\n",
+        DPRINT1("CM: CmpLinkKeyToHive: couldn't create %S, Status = 0x%lx\n",
                 LinkKeyName, Status);
         return FALSE;
     }
@@ -77,25 +78,26 @@ CmpLinkKeyToHive(
     if (Disposition != REG_CREATED_NEW_KEY)
     {
         DPRINT1("CM: CmpLinkKeyToHive: %S already exists!\n", LinkKeyName);
-        ZwClose(TargetKeyHandle);
+        ZwClose(LinkKeyHandle);
         return FALSE;
     }
 
     /* Set the target key name as link target */
-    Status = ZwSetValueKey(TargetKeyHandle,
+    RtlInitUnicodeString(&KeyName, TargetKeyName);
+    Status = ZwSetValueKey(LinkKeyHandle,
                            &CmSymbolicLinkValueName,
                            0,
                            REG_LINK,
-                           TargetKeyName,
-                           (ULONG)wcslen(TargetKeyName) * sizeof(WCHAR));
+                           KeyName.Buffer,
+                           KeyName.Length);
 
     /* Close the link key handle */
-    ObCloseHandle(TargetKeyHandle, KernelMode);
+    ObCloseHandle(LinkKeyHandle, KernelMode);
 
     if (!NT_SUCCESS(Status))
     {
-        DPRINT1("CM: CmpLinkKeyToHive: couldn't create symbolic link for %S\n",
-                TargetKeyName);
+        DPRINT1("CM: CmpLinkKeyToHive: couldn't create symbolic link for %S, Status = 0x%lx\n",
+                TargetKeyName, Status);
         return FALSE;
     }
 
@@ -263,7 +265,7 @@ CmpQueryKeyName(IN PVOID ObjectBody,
                       BytesToCopy);
 
         /* Null terminate it */
-        ObjectNameInfo->Name.Buffer[BytesToCopy / sizeof(WCHAR)] = 0;
+        ObjectNameInfo->Name.Buffer[BytesToCopy / sizeof(WCHAR)] = UNICODE_NULL;
     }
     _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
     {
@@ -382,7 +384,7 @@ CmpInitHiveFromFile(IN PCUNICODE_STRING HiveName,
                       HiveName->Buffer,
                       HiveName->Length);
         NewHive->FileFullPath.Length = HiveName->Length;
-        NewHive->FileFullPath.MaximumLength = HiveName->MaximumLength;
+        NewHive->FileFullPath.MaximumLength = HiveName->Length;
     }
 
     /* Return success */
@@ -527,12 +529,10 @@ CmpCreateControlSet(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
     OBJECT_ATTRIBUTES ObjectAttributes;
     CHAR ValueInfoBuffer[128];
     PKEY_VALUE_FULL_INFORMATION ValueInfo;
-    CHAR Buffer[128];
     WCHAR UnicodeBuffer[128];
     HANDLE SelectHandle, KeyHandle, ConfigHandle = NULL, ProfileHandle = NULL;
     HANDLE ParentHandle = NULL;
     ULONG ControlSet, HwProfile;
-    ANSI_STRING TempString;
     NTSTATUS Status;
     ULONG ResultLength, Disposition;
     PLOADER_PARAMETER_EXTENSION LoaderExtension;
@@ -620,16 +620,11 @@ UseSet:
     /* Sanity check */
     ASSERT(Disposition == REG_CREATED_NEW_KEY);
 
-    /* Initialize the symbolic link name */
-    sprintf(Buffer,
-            "\\Registry\\Machine\\System\\ControlSet%03ld",
-            ControlSet);
-    RtlInitAnsiString(&TempString, Buffer);
-
-    /* Create a Unicode string out of it */
-    KeyName.MaximumLength = sizeof(UnicodeBuffer);
-    KeyName.Buffer = UnicodeBuffer;
-    Status = RtlAnsiStringToUnicodeString(&KeyName, &TempString, FALSE);
+    /* Initialize the target link name */
+    RtlStringCbPrintfW(UnicodeBuffer, sizeof(UnicodeBuffer),
+                       L"\\Registry\\Machine\\System\\ControlSet%03ld",
+                       ControlSet);
+    RtlInitUnicodeString(&KeyName, UnicodeBuffer);
 
     /* Set the value */
     Status = NtSetValueKey(KeyHandle,
@@ -653,7 +648,7 @@ UseSet:
     if (!NT_SUCCESS(Status))
     {
         /* Cleanup and exit */
-        ConfigHandle = 0;
+        ConfigHandle = NULL;
         goto Cleanup;
     }
 
@@ -696,21 +691,14 @@ UseSet:
     if (!NT_SUCCESS(Status))
     {
         /* Exit and clean up */
-        ParentHandle = 0;
+        ParentHandle = NULL;
         goto Cleanup;
     }
 
     /* Build the profile name */
-    sprintf(Buffer, "%04ld", HwProfile);
-    RtlInitAnsiString(&TempString, Buffer);
-
-    /* Convert it to Unicode */
-    KeyName.MaximumLength = sizeof(UnicodeBuffer);
-    KeyName.Buffer = UnicodeBuffer;
-    Status = RtlAnsiStringToUnicodeString(&KeyName,
-                                          &TempString,
-                                          FALSE);
-    ASSERT(Status == STATUS_SUCCESS);
+    RtlStringCbPrintfW(UnicodeBuffer, sizeof(UnicodeBuffer),
+                       L"%04ld", HwProfile);
+    RtlInitUnicodeString(&KeyName, UnicodeBuffer);
 
     /* Open the associated key */
     InitializeObjectAttributes(&ObjectAttributes,
@@ -757,19 +745,11 @@ UseSet:
         ASSERT(Disposition == REG_CREATED_NEW_KEY);
 
         /* Create the profile name */
-        sprintf(Buffer,
-                "\\Registry\\Machine\\System\\CurrentControlSet\\"
-                "Hardware Profiles\\%04ld",
-                HwProfile);
-        RtlInitAnsiString(&TempString, Buffer);
-
-        /* Convert it to Unicode */
-        KeyName.MaximumLength = sizeof(UnicodeBuffer);
-        KeyName.Buffer = UnicodeBuffer;
-        Status = RtlAnsiStringToUnicodeString(&KeyName,
-                                              &TempString,
-                                              FALSE);
-        ASSERT(STATUS_SUCCESS == Status);
+        RtlStringCbPrintfW(UnicodeBuffer, sizeof(UnicodeBuffer),
+                           L"\\Registry\\Machine\\System\\CurrentControlSet\\"
+                           L"Hardware Profiles\\%04ld",
+                           HwProfile);
+        RtlInitUnicodeString(&KeyName, UnicodeBuffer);
 
         /* Set it */
         Status = NtSetValueKey(KeyHandle,
@@ -1640,7 +1620,7 @@ CmInitSystem1(VOID)
     /* Create the default security descriptor */
     SecurityDescriptor = CmpHiveRootSecurityDescriptor();
 
-    /* Create '\Registry\Machine' key. */
+    /* Create '\Registry\Machine' key */
     RtlInitUnicodeString(&KeyName, L"\\REGISTRY\\MACHINE");
     InitializeObjectAttributes(&ObjectAttributes,
                                &KeyName,
@@ -1663,7 +1643,7 @@ CmInitSystem1(VOID)
     /* Close the handle */
     NtClose(KeyHandle);
 
-    /* Create '\Registry\User' key. */
+    /* Create '\Registry\User' key */
     RtlInitUnicodeString(&KeyName, L"\\REGISTRY\\USER");
     InitializeObjectAttributes(&ObjectAttributes,
                                &KeyName,
@@ -1696,7 +1676,7 @@ CmInitSystem1(VOID)
         KeBugCheckEx(CONFIG_INITIALIZATION_FAILED, 1, 7, 0, 0);
     }
 
-    /* Create the 'CurrentControlSet' link. */
+    /* Create the 'CurrentControlSet' link */
     Status = CmpCreateControlSet(KeLoaderBlock);
     if (!NT_SUCCESS(Status))
     {
@@ -2168,8 +2148,8 @@ CmpSetVersionData(VOID)
     HANDLE MicrosoftKeyHandle = NULL;
     HANDLE WindowsNtKeyHandle = NULL;
     HANDLE CurrentVersionKeyHandle = NULL;
-    WCHAR Buffer[128]; // Buffer large enough to contain a full ULONG in decimal representation,
-                       // and the full 'CurrentType' string.
+    WCHAR Buffer[128]; // Buffer large enough to contain a full ULONG in decimal
+                       // representation, and the full 'CurrentType' string.
 
     /*
      * Open the 'HKLM\Software\Microsoft\Windows NT\CurrentVersion' key
@@ -2288,20 +2268,20 @@ CmpSetVersionData(VOID)
 
     /* Set the 'CurrentType' value */
     RtlInitUnicodeString(&ValueName, L"CurrentType");
-
-    swprintf(Buffer, L"%s %s",
+    RtlStringCbPrintfW(Buffer, sizeof(Buffer),
+                       L"%s %s",
 #ifdef CONFIG_SMP
-             L"Multiprocessor"
+                       L"Multiprocessor"
 #else
-             L"Uniprocessor"
+                       L"Uniprocessor"
 #endif
-             ,
+                       ,
 #if (DBG == 1)
-             L"Checked"
+                       L"Checked"
 #else
-             L"Free"
+                       L"Free"
 #endif
-             );
+                       );
     RtlInitUnicodeString(&ValueData, Buffer);
     NtSetValueKey(CurrentVersionKeyHandle,
                   &ValueName,

@@ -18,6 +18,7 @@ static KMT_MESSAGE_HANDLER TestMessageHandler;
 static PVOID CurrentBuffer;
 static PMDL CurrentMdl;
 static PVOID CurrentUser;
+static SIZE_T NonCachedLength;
 
 NTSTATUS
 TestEntry(
@@ -86,7 +87,14 @@ TestCleanEverything(VOID)
     _SEH2_END;
     ok_eq_hex(SehStatus, STATUS_SUCCESS);
     IoFreeMdl(CurrentMdl);
-    ExFreePoolWithTag(CurrentBuffer, 'MLPC');
+    if (NonCachedLength)
+    {
+        MmFreeNonCachedMemory(CurrentBuffer, NonCachedLength);
+    }
+    else
+    {
+        ExFreePoolWithTag(CurrentBuffer, 'MLPC');
+    }
     CurrentMdl = NULL;
 }
 
@@ -110,7 +118,10 @@ TestMessageHandler(
             ok_eq_size(InLength, sizeof(QUERY_BUFFER));
             ok_eq_size(*OutLength, sizeof(QUERY_BUFFER));
             ok_eq_pointer(CurrentMdl, NULL);
-            ok(ExGetPreviousMode() == UserMode, "Not comming from umode!\n");
+
+            TestCleanEverything();
+
+            ok(ExGetPreviousMode() == UserMode, "Not coming from umode!\n");
             if (!skip(Buffer && InLength >= sizeof(QUERY_BUFFER) && *OutLength >= sizeof(QUERY_BUFFER), "Cannot read/write from/to buffer!\n"))
             {
                 PQUERY_BUFFER QueryBuffer;
@@ -120,59 +131,82 @@ TestMessageHandler(
                 QueryBuffer = Buffer;
                 CacheType = (QueryBuffer->Cached ? MmCached : MmNonCached);
                 Length = QueryBuffer->Length;
+                CurrentUser = NULL;
                 ok(Length > 0, "Null size!\n");
 
-                CurrentBuffer = ExAllocatePoolWithTag(NonPagedPool, Length, 'MLPC');
-                ok(CurrentBuffer != NULL, "ExAllocatePool failed!\n");
-                CurrentUser = NULL;
-                if (!skip(CurrentBuffer != NULL, "ExAllocatePool failed!\n"))
+                if (!skip(Length > 0, "Null size!\n"))
                 {
-                    CurrentMdl = IoAllocateMdl(CurrentBuffer, Length, FALSE, FALSE, NULL);
-                    ok(CurrentMdl != NULL, "IoAllocateMdl failed!\n");
-                    if (CurrentMdl)
+                    if (QueryBuffer->Cached)
                     {
-                        KIRQL Irql;
-
-                        SehStatus = STATUS_SUCCESS;
-                        _SEH2_TRY
+                        CurrentBuffer = ExAllocatePoolWithTag(NonPagedPool, Length, 'MLPC');
+                        ok(CurrentBuffer != NULL, "ExAllocatePool failed!\n");
+                        NonCachedLength = 0;
+                    }
+                    else
+                    {
+                        CurrentBuffer = MmAllocateNonCachedMemory(Length);
+                        ok(CurrentBuffer != NULL, "MmAllocateNonCachedMemory failed!\n");
+                        if (CurrentBuffer)
                         {
-                            MmProbeAndLockPages(CurrentMdl, KernelMode, IoWriteAccess);
+                            RtlZeroMemory(CurrentBuffer, Length);
+                            NonCachedLength = Length;
                         }
-                        _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+                    }
+                    if (!skip(CurrentBuffer != NULL, "ExAllocatePool failed!\n"))
+                    {
+                        CurrentMdl = IoAllocateMdl(CurrentBuffer, Length, FALSE, FALSE, NULL);
+                        ok(CurrentMdl != NULL, "IoAllocateMdl failed!\n");
+                        if (!skip(CurrentMdl != NULL, "IoAllocateMdl failed!\n"))
                         {
-                            SehStatus = _SEH2_GetExceptionCode();
-                        }
-                        _SEH2_END;
-                        ok_eq_hex(SehStatus, STATUS_SUCCESS);
+                            KIRQL Irql;
 
-                        Irql = KeGetCurrentIrql();
-                        ok(Irql <= APC_LEVEL, "IRQL > APC_LEVEL: %d\n", Irql);
-
-                        SehStatus = STATUS_SUCCESS;
-                        _SEH2_TRY
-                        {
-                            CurrentUser = MmMapLockedPagesSpecifyCache(CurrentMdl, UserMode, CacheType, NULL, FALSE, NormalPagePriority);
-                        }
-                        _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
-                        {
-                            SehStatus = _SEH2_GetExceptionCode();
-                        }
-                        _SEH2_END;
-
-                        if (QueryBuffer->Cached)
-                        {
+                            SehStatus = STATUS_SUCCESS;
+                            _SEH2_TRY
+                            {
+                                MmProbeAndLockPages(CurrentMdl, KernelMode, IoWriteAccess);
+                            }
+                            _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+                            {
+                                SehStatus = _SEH2_GetExceptionCode();
+                            }
+                            _SEH2_END;
                             ok_eq_hex(SehStatus, STATUS_SUCCESS);
-                            ok(CurrentUser != NULL, "MmMapLockedPagesSpecifyCache failed!\n");
+
+                            Irql = KeGetCurrentIrql();
+                            ok(Irql <= APC_LEVEL, "IRQL > APC_LEVEL: %d\n", Irql);
+
+                            SehStatus = STATUS_SUCCESS;
+                            _SEH2_TRY
+                            {
+                                CurrentUser = MmMapLockedPagesSpecifyCache(CurrentMdl, UserMode, CacheType, QueryBuffer->Buffer, FALSE, NormalPagePriority);
+                            }
+                            _SEH2_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
+                            {
+                                SehStatus = _SEH2_GetExceptionCode();
+                            }
+                            _SEH2_END;
+                            if (QueryBuffer->Status != -1)
+                            {
+                                ok_eq_hex(SehStatus, QueryBuffer->Status);
+                                if (NT_SUCCESS(QueryBuffer->Status))
+                                {
+                                    ok(CurrentUser != NULL, "MmMapLockedPagesSpecifyCache failed!\n");
+                                }
+                                else
+                                {
+                                    ok(CurrentUser == NULL, "MmMapLockedPagesSpecifyCache succeeded!\n");
+                                }
+                            }
+                            QueryBuffer->Status = SehStatus;
                         }
                         else
                         {
-                            ok_eq_hex(SehStatus, STATUS_INVALID_ADDRESS);
-                            ok_eq_pointer(CurrentUser, NULL);
+                            ExFreePoolWithTag(CurrentBuffer, 'MLPC');
                         }
                     }
                 }
-                QueryBuffer->Buffer = CurrentUser;
 
+                QueryBuffer->Buffer = CurrentUser;
                 *OutLength = sizeof(QUERY_BUFFER);
             }
 
@@ -185,7 +219,7 @@ TestMessageHandler(
             ok_eq_size(*OutLength, 0);
             ok(CurrentMdl != NULL, "MDL is not in use!\n");
 
-            if (!skip(Buffer && InLength >= sizeof(QUERY_BUFFER), "Cannot read from buffer!\n"))
+            if (!skip(Buffer && InLength >= sizeof(READ_BUFFER), "Cannot read from buffer!\n"))
             {
                 PREAD_BUFFER ReadBuffer;
 
@@ -212,6 +246,11 @@ TestMessageHandler(
                 TestCleanEverything();
             }
 
+            break;
+        }
+        case IOCTL_CLEAN:
+        {
+            TestCleanEverything();
             break;
         }
         default:

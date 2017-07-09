@@ -72,6 +72,80 @@ SRVSVC_HANDLE_unbind(SRVSVC_HANDLE pszSystemName,
 
 NET_API_STATUS
 WINAPI
+NetConnectionEnum(
+    _In_ LMSTR servername,
+    _In_ LMSTR qualifier,
+    _In_ DWORD level,
+    _Out_ LPBYTE *bufptr,
+    _In_ DWORD prefmaxlen,
+    _Out_ LPDWORD entriesread,
+    _Out_ LPDWORD totalentries,
+    _Inout_ LPDWORD resume_handle)
+{
+    CONNECT_ENUM_STRUCT EnumStruct;
+    CONNECT_INFO_0_CONTAINER Level0Container = {0, NULL};
+    CONNECT_INFO_1_CONTAINER Level1Container = {0, NULL};
+    NET_API_STATUS status = 0;
+
+    TRACE("NetConnectionEnum(%s %s %s %lu %p %lu %p %p %p)\n",
+          debugstr_w(servername), debugstr_w(qualifier), level, bufptr,
+          prefmaxlen, entriesread, totalentries, resume_handle);
+
+    if (level > 1)
+        return ERROR_INVALID_LEVEL;
+
+    EnumStruct.Level = level;
+    switch (level)
+    {
+        case 0:
+            EnumStruct.ConnectInfo.Level0 = &Level0Container;
+            break;
+
+        case 1:
+            EnumStruct.ConnectInfo.Level1 = &Level1Container;
+            break;
+    }
+
+    RpcTryExcept
+    {
+        status = NetrConnectionEnum(servername,
+                                    qualifier,
+                                    &EnumStruct,
+                                    prefmaxlen,
+                                    totalentries,
+                                    resume_handle);
+
+        switch (level)
+        {
+            case 0:
+                if (EnumStruct.ConnectInfo.Level0->Buffer != NULL)
+                {
+                    *bufptr = (LPBYTE)EnumStruct.ConnectInfo.Level0->Buffer;
+                    *entriesread = EnumStruct.ConnectInfo.Level0->EntriesRead;
+                }
+                break;
+
+            case 1:
+                if (EnumStruct.ConnectInfo.Level1->Buffer != NULL)
+                {
+                    *bufptr = (LPBYTE)EnumStruct.ConnectInfo.Level1->Buffer;
+                    *entriesread = EnumStruct.ConnectInfo.Level1->EntriesRead;
+                }
+                break;
+        }
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
 NetFileClose(
     _In_ LMSTR servername,
     _In_ DWORD fileid)
@@ -221,6 +295,279 @@ NetRemoteTOD(
     {
         status = NetrRemoteTOD((SRVSVC_HANDLE)UncServerName,
                                (LPTIME_OF_DAY_INFO *)BufferPtr);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
+NetServerDiskEnum(
+    _In_ LMSTR servername,
+    _In_ DWORD level,
+    _Out_ LPBYTE *bufptr,
+    _In_ DWORD prefmaxlen,
+    _Out_ LPDWORD entriesread,
+    _Out_ LPDWORD totalentries,
+    _Inout_ LPDWORD resume_handle)
+{
+    DISK_ENUM_CONTAINER EnumContainer;
+    NET_API_STATUS status;
+
+    TRACE("NetServerDiskEnum(%s %lu %p %lu %p %p %p)\n",
+          debugstr_w(servername), level, bufptr, prefmaxlen,
+          entriesread, totalentries, resume_handle);
+
+    EnumContainer.EntriesRead = 0;
+    EnumContainer.Buffer = NULL;
+
+    RpcTryExcept
+    {
+        status = NetrServerDiskEnum(servername,
+                                    level,
+                                    &EnumContainer,
+                                    prefmaxlen,
+                                    totalentries,
+                                    resume_handle);
+
+        if (EnumContainer.Buffer != NULL)
+        {
+            *bufptr = (LPBYTE)EnumContainer.Buffer;
+        }
+        else
+        {
+            *bufptr = NULL;
+        }
+
+        if (EnumContainer.EntriesRead > 0)
+        {
+            *entriesread = EnumContainer.EntriesRead - 1;
+        }
+        else
+        {
+            *entriesread = 0;
+        }
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+#if 0
+NET_API_STATUS
+WINAPI
+NetServerGetInfo(
+    LMSTR servername,
+    DWORD level,
+    LPBYTE *bufptr)
+{
+    NET_API_STATUS status;
+
+    TRACE("NetServerGetInfo(%s %lu %p)\n",
+          debugstr_w(servername), level, bufptr);
+
+    *bufptr = NULL;
+
+    RpcTryExcept
+    {
+        status = NetrServerGetInfo(servername,
+                                   level,
+                                   (LPSERVER_INFO)bufptr);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+#endif
+
+
+NET_API_STATUS
+WINAPI
+NetServerSetInfo(
+    _In_ LPWSTR servername,
+    _In_ DWORD level,
+    _In_ LPBYTE buf,
+    _Out_ LPDWORD parm_err)
+{
+    NET_API_STATUS status;
+
+    TRACE("NetServerSetInfo(%s %lu %p %p)\n",
+          debugstr_w(servername), level, buf, parm_err);
+
+    RpcTryExcept
+    {
+        status = NetrServerSetInfo(servername,
+                                   level,
+                                   (LPSERVER_INFO)&buf,
+                                   parm_err);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
+NetServerTransportAdd(
+    _In_ LPWSTR servername,
+    _In_ DWORD level,
+    _In_ LPBYTE bufptr)
+{
+    NET_API_STATUS status;
+
+    TRACE("NetServerTransportAdd(%s %lu %p)\n",
+          debugstr_w(servername), level, bufptr);
+
+    RpcTryExcept
+    {
+        status = NetrServerTransportAdd(servername,
+                                        level,
+                                        (LPSERVER_TRANSPORT_INFO_0)bufptr);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
+NetServerTransportAddEx(
+    _In_ LPWSTR servername,
+    _In_ DWORD level,
+    _In_ LPBYTE bufptr)
+{
+    NET_API_STATUS status;
+
+    TRACE("NetServerTransportAddEx(%s %lu %p)\n",
+          debugstr_w(servername), level, bufptr);
+
+    RpcTryExcept
+    {
+        status = NetrServerTransportAddEx(servername,
+                                          level,
+                                          (LPTRANSPORT_INFO)bufptr);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
+NetServerTransportDel(
+    _In_ LPWSTR servername,
+    _In_ DWORD level,
+    _In_ LPBYTE bufptr)
+{
+    NET_API_STATUS status;
+
+    TRACE("NetServerTransportDel(%s %lu %p)\n",
+          debugstr_w(servername), level, bufptr);
+
+    RpcTryExcept
+    {
+        status = NetrServerTransportDel(servername,
+                                        level,
+                                        (LPSERVER_TRANSPORT_INFO_0)bufptr);
+    }
+    RpcExcept(EXCEPTION_EXECUTE_HANDLER)
+    {
+        status = I_RpcMapWin32Status(RpcExceptionCode());
+    }
+    RpcEndExcept;
+
+    return status;
+}
+
+
+NET_API_STATUS
+WINAPI
+NetServerTransportEnum(
+    _In_ LPWSTR servername,
+    _In_ DWORD level,
+    _Out_ LPBYTE *bufptr,
+    _In_ DWORD prefmaxlen,
+    _Out_ LPDWORD entriesread,
+    _Out_ LPDWORD totalentries,
+    _Inout_ LPDWORD resume_handle)
+{
+    SERVER_XPORT_ENUM_STRUCT EnumStruct;
+    SERVER_XPORT_INFO_0_CONTAINER Level0Container = {0, NULL};
+    SERVER_XPORT_INFO_1_CONTAINER Level1Container = {0, NULL};
+    NET_API_STATUS status;
+
+    TRACE("NetServerTransportEnum(%s %lu %p %lu %p %p %p)\n",
+          debugstr_w(servername), level, bufptr, prefmaxlen,
+          entriesread, totalentries, resume_handle);
+
+    EnumStruct.Level = level;
+    switch (level)
+    {
+        case 0:
+            EnumStruct.XportInfo.Level0 = &Level0Container;
+            break;
+
+        case 1:
+            EnumStruct.XportInfo.Level1 = &Level1Container;
+            break;
+    }
+
+    RpcTryExcept
+    {
+        status = NetrServerTransportEnum(servername,
+                                         &EnumStruct,
+                                         prefmaxlen,
+                                         totalentries,
+                                         resume_handle);
+
+        switch (level)
+        {
+            case 0:
+                if (EnumStruct.XportInfo.Level0->Buffer != NULL)
+                {
+                    *bufptr = (LPBYTE)EnumStruct.XportInfo.Level0->Buffer;
+                    *entriesread = EnumStruct.XportInfo.Level0->EntriesRead;
+                }
+                break;
+
+            case 1:
+                if (EnumStruct.XportInfo.Level1->Buffer != NULL)
+                {
+                    *bufptr = (LPBYTE)EnumStruct.XportInfo.Level1->Buffer;
+                    *entriesread = EnumStruct.XportInfo.Level1->EntriesRead;
+                }
+                break;
+        }
     }
     RpcExcept(EXCEPTION_EXECUTE_HANDLER)
     {
